@@ -1032,9 +1032,15 @@
                             .update(productData)
                             .eq('id', state.editingProductId);
 
-                        if (error) throw error;
+                        if (error) {
+                            console.error('Update error:', error);
+                            alert('Failed to update in database: ' + error.message);
+                        } else {
+                            console.log('Product updated in Supabase');
+                        }
                     } catch (error) {
                         console.error('Update error:', error);
+                        alert('Failed to update: ' + error.message);
                     }
                 }
 
@@ -1051,16 +1057,28 @@
 
                 if (supabaseClient) {
                     try {
+                        // Add created_at for ordering
+                        const insertData = {
+                            ...productData,
+                            created_at: new Date().toISOString()
+                        };
+
                         const { data, error } = await supabaseClient
                             .from('products')
-                            .insert(productData)
+                            .insert(insertData)
                             .select()
                             .single();
 
-                        if (error) throw error;
-                        newProduct.id = data.id;
+                        if (error) {
+                            console.error('Insert error:', error);
+                            alert('Failed to save to database: ' + error.message + '. Data saved locally only.');
+                        } else {
+                            newProduct.id = data.id;
+                            console.log('Product saved to Supabase with ID:', data.id);
+                        }
                     } catch (error) {
                         console.error('Insert error:', error);
+                        alert('Failed to save: ' + error.message);
                     }
                 }
 
