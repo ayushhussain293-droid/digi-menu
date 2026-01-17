@@ -947,6 +947,21 @@
             document.getElementById(id).classList.remove('active');
         }
 
+        // --- EXPOSE FUNCTIONS TO WINDOW (Fix for Scope Issue) ---
+        window.setCategory = setCategory;
+        window.orderItem = orderItem;
+        window.logoutAdmin = logoutAdmin;
+        window.openProductModal = openProductModal;
+        window.openSettingsModal = openSettingsModal;
+        window.verifyPassword = verifyPassword;
+        window.saveProduct = saveProduct;
+        window.deleteProduct = deleteProduct;
+        window.saveSettings = saveSettings;
+        window.closeModal = closeModal;
+        window.toggleInfo = toggleInfo;
+        window.editProduct = openProductModal; // Alias for edit
+        window.handleImageUpload = handleImageUpload;
+
         // Run
         init();
 
