@@ -392,6 +392,67 @@
             color: #6c757d;
         }
 
+        /* Image Upload Styles */
+        .image-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .image-upload-area:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .image-upload-area.has-image {
+            padding: 10px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .upload-placeholder {
+            color: #6c757d;
+        }
+
+        .upload-placeholder span {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .or-divider {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            color: #adb5bd;
+            font-size: 0.85rem;
+        }
+
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .or-divider span {
+            padding: 0 10px;
+        }
+
         /* Responsive */
         @media (max-width: 400px) {
             .menu-item {
@@ -492,8 +553,18 @@
                     <select id="prod-category"></select>
                 </div>
                 <div class="form-group">
-                    <label>Image URL</label>
-                    <input type="text" id="prod-image" placeholder="https://...">
+                    <label>Product Image</label>
+                    <div class="image-upload-area" id="prod-image-upload"
+                        onclick="document.getElementById('prod-image-file').click()">
+                        <div class="upload-placeholder" id="prod-upload-placeholder">
+                            <span>📷</span>
+                            <p>Click to upload image</p>
+                        </div>
+                        <img id="prod-image-preview" class="image-preview" style="display: none;">
+                    </div>
+                    <input type="file" id="prod-image-file" class="file-input" accept="image/*">
+                    <div class="or-divider"><span>or paste URL</span></div>
+                    <input type="text" id="prod-image" placeholder="https://..." style="margin-top: 5px;">
                 </div>
                 <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
                 <button class="btn btn-danger" id="delete-product-btn" style="display: none;"
@@ -526,6 +597,20 @@
                     <label>Categories (comma separated)</label>
                     <input type="text" id="settings-categories" placeholder="Coffee, Food, Desserts">
                 </div>
+                <div class="form-group">
+                    <label>Header/Cover Image</label>
+                    <div class="image-upload-area" id="cover-image-upload"
+                        onclick="document.getElementById('cover-image-file').click()">
+                        <div class="upload-placeholder" id="cover-upload-placeholder">
+                            <span>🖼️</span>
+                            <p>Click to upload cover image</p>
+                        </div>
+                        <img id="cover-image-preview" class="image-preview" style="display: none;">
+                    </div>
+                    <input type="file" id="cover-image-file" class="file-input" accept="image/*">
+                    <div class="or-divider"><span>or paste URL</span></div>
+                    <input type="text" id="settings-cover-image" placeholder="https://..." style="margin-top: 5px;">
+                </div>
                 <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
             </div>
         </div>
@@ -547,12 +632,15 @@
                 name: 'The Daily Grind',
                 whatsapp: '+1234567890',
                 password: CONFIG.DEFAULT_PASSWORD,
-                categories: ['Coffee', 'Food', 'Desserts']
+                categories: ['Coffee', 'Food', 'Desserts'],
+                headerImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800'
             },
             currentCategory: 'all',
             editingProductId: null,
             adminStep1Complete: false,
-            step1Timer: null
+            step1Timer: null,
+            pendingProductImage: null,
+            pendingCoverImage: null
         };
 
         // ==================== SUPABASE CLIENT ====================
@@ -594,7 +682,8 @@
                             name: shopInfo.name || state.shop.name,
                             whatsapp: shopInfo.whatsapp || state.shop.whatsapp,
                             password: shopInfo.password || state.shop.password,
-                            categories: shopInfo.categories || state.shop.categories
+                            categories: shopInfo.categories || state.shop.categories,
+                            headerImage: shopInfo.header_image || state.shop.headerImage
                         };
                     }
 
@@ -637,7 +726,8 @@
                             name: state.shop.name,
                             whatsapp: state.shop.whatsapp,
                             password: state.shop.password,
-                            categories: state.shop.categories
+                            categories: state.shop.categories,
+                            header_image: state.shop.headerImage
                         });
                 } catch (error) {
                     console.error('Supabase save error:', error);
@@ -655,6 +745,10 @@
 
         function renderHeader() {
             document.getElementById('shop-name').textContent = state.shop.name;
+            const header = document.getElementById('header');
+            if (state.shop.headerImage) {
+                header.style.background = 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url("' + state.shop.headerImage + '") center/cover';
+            }
         }
 
         function renderCategories() {
@@ -838,10 +932,14 @@
         // ==================== PRODUCT CRUD ====================
         function openProductModal(productId) {
             state.editingProductId = productId || null;
+            state.pendingProductImage = null;
 
             const titleEl = document.getElementById('product-modal-title');
             const deleteBtn = document.getElementById('delete-product-btn');
             const categorySelect = document.getElementById('prod-category');
+            const preview = document.getElementById('prod-image-preview');
+            const placeholder = document.getElementById('prod-upload-placeholder');
+            const uploadArea = document.getElementById('prod-image-upload');
 
             // Populate category dropdown
             categorySelect.innerHTML = state.shop.categories.map(cat =>
@@ -859,6 +957,18 @@
                     document.getElementById('prod-category').value = product.category;
                     document.getElementById('prod-image').value = product.image || '';
                     deleteBtn.style.display = 'block';
+
+                    // Show existing image preview
+                    if (product.image) {
+                        preview.src = product.image;
+                        preview.style.display = 'block';
+                        placeholder.style.display = 'none';
+                        uploadArea.classList.add('has-image');
+                    } else {
+                        preview.style.display = 'none';
+                        placeholder.style.display = 'block';
+                        uploadArea.classList.remove('has-image');
+                    }
                 }
             } else {
                 titleEl.textContent = 'Add Product';
@@ -869,6 +979,11 @@
                 document.getElementById('prod-category').value = state.shop.categories[0] || '';
                 document.getElementById('prod-image').value = '';
                 deleteBtn.style.display = 'none';
+
+                // Reset image preview
+                preview.style.display = 'none';
+                placeholder.style.display = 'block';
+                uploadArea.classList.remove('has-image');
             }
 
             openModal('product-modal');
@@ -883,11 +998,20 @@
             const description = document.getElementById('prod-desc').value.trim();
             const price = parseFloat(document.getElementById('prod-price').value) || 0;
             const category = document.getElementById('prod-category').value;
-            const image = document.getElementById('prod-image').value.trim();
+            let image = document.getElementById('prod-image').value.trim();
 
             if (!name) {
                 alert('Please enter a product name');
                 return;
+            }
+
+            // Handle image upload if file was selected
+            if (state.pendingProductImage) {
+                const uploadedUrl = await uploadImage(state.pendingProductImage, 'products');
+                if (uploadedUrl) {
+                    image = uploadedUrl;
+                }
+                state.pendingProductImage = null;
             }
 
             const productData = {
@@ -1002,6 +1126,21 @@
             document.getElementById('settings-whatsapp').value = state.shop.whatsapp;
             document.getElementById('settings-password').value = state.shop.password;
             document.getElementById('settings-categories').value = state.shop.categories.join(', ');
+            document.getElementById('settings-cover-image').value = state.shop.headerImage || '';
+
+            // Reset cover image preview
+            state.pendingCoverImage = null;
+            const preview = document.getElementById('cover-image-preview');
+            const placeholder = document.getElementById('cover-upload-placeholder');
+            if (state.shop.headerImage) {
+                preview.src = state.shop.headerImage;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                preview.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+
             openModal('settings-modal');
         }
 
@@ -1016,9 +1155,100 @@
                 state.shop.categories = categories;
             }
 
+            // Handle cover image - upload file or use URL
+            if (state.pendingCoverImage) {
+                const uploadedUrl = await uploadImage(state.pendingCoverImage, 'covers');
+                if (uploadedUrl) {
+                    state.shop.headerImage = uploadedUrl;
+                }
+            } else {
+                const coverUrl = document.getElementById('settings-cover-image').value.trim();
+                if (coverUrl) {
+                    state.shop.headerImage = coverUrl;
+                }
+            }
+
             await saveData();
             render();
             closeModal('settings-modal');
+        }
+
+        // ==================== IMAGE UPLOAD ====================
+        async function uploadImage(file, folder) {
+            if (!supabaseClient) {
+                console.log('Supabase not available for upload');
+                return null;
+            }
+
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = folder + '_' + Date.now() + '.' + fileExt;
+                const filePath = folder + '/' + fileName;
+
+                const { data, error } = await supabaseClient.storage
+                    .from('product-images')
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (error) throw error;
+
+                // Get public URL
+                const { data: urlData } = supabaseClient.storage
+                    .from('product-images')
+                    .getPublicUrl(filePath);
+
+                return urlData.publicUrl;
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Failed to upload image. Using URL if provided.');
+                return null;
+            }
+        }
+
+        function setupFileInputs() {
+            // Product image file input
+            const prodFileInput = document.getElementById('prod-image-file');
+            if (prodFileInput) {
+                prodFileInput.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        state.pendingProductImage = file;
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const preview = document.getElementById('prod-image-preview');
+                            const placeholder = document.getElementById('prod-upload-placeholder');
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                            placeholder.style.display = 'none';
+                            document.getElementById('prod-image-upload').classList.add('has-image');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Cover image file input
+            const coverFileInput = document.getElementById('cover-image-file');
+            if (coverFileInput) {
+                coverFileInput.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        state.pendingCoverImage = file;
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const preview = document.getElementById('cover-image-preview');
+                            const placeholder = document.getElementById('cover-upload-placeholder');
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                            placeholder.style.display = 'none';
+                            document.getElementById('cover-image-upload').classList.add('has-image');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
         }
 
         // ==================== ORDER FUNCTION ====================
@@ -1051,6 +1281,7 @@
             initSupabase();
             await loadData();
             setupAdminStep2();
+            setupFileInputs();
             console.log('Digital Menu ready!');
         }
 
