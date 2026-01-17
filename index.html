@@ -712,7 +712,7 @@
                             categories: shopInfo.categories || state.shop.categories,
                             headerImage: shopInfo.cover_image_url || state.shop.headerImage,
                             footerCopyright: shopInfo.footer_copyright || state.shop.footerCopyright,
-                            footerAddress: shopInfo.footer_address || state.shop.footerAddress
+                            footerAddress: shopInfo.address || state.shop.footerAddress
                         };
                     }
 
@@ -757,7 +757,7 @@
                             admin_password: state.shop.password,
                             cover_image_url: state.shop.headerImage,
                             footer_copyright: state.shop.footerCopyright,
-                            footer_address: state.shop.footerAddress
+                            address: state.shop.footerAddress
                         })
                         .eq('id', state.shop.id);
 
