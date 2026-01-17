@@ -784,7 +784,7 @@
             }
 
             container.innerHTML = filteredProducts.map(product => {
-                const imageUrl = product.image || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400';
+                const imageUrl = product.image_url || 'https://images.unsplash.com/photo-4d71bcdd2085?w=400';
                 return '<div class="menu-item" data-id="' + product.id + '">' +
                     '<img src="' + imageUrl + '" alt="' + product.name + '" class="menu-item-image">' +
                     '<div class="menu-item-content">' +
@@ -962,12 +962,12 @@
                     document.getElementById('prod-desc').value = product.description || '';
                     document.getElementById('prod-price').value = product.price;
                     document.getElementById('prod-category').value = product.category;
-                    document.getElementById('prod-image').value = product.image || '';
+                    document.getElementById('prod-image').value = product.image_url || '';
                     deleteBtn.style.display = 'block';
 
                     // Show existing image preview
-                    if (product.image) {
-                        preview.src = product.image;
+                    if (product.image_url) {
+                        preview.src = product.image_url;
                         preview.style.display = 'block';
                         placeholder.style.display = 'none';
                         uploadArea.classList.add('has-image');
@@ -1026,7 +1026,7 @@
                 description: description,
                 price: price,
                 category: category,
-                image: image,
+                image_url: image,
                 visible: true
             };
 
