@@ -491,6 +491,7 @@
         <footer class="footer" id="footer">
             <p id="footer-copyright">&copy; 2024 The Daily Grind</p>
             <p id="footer-address">123 Coffee Lane, Brewville</p>
+            <p id="footer-hours" style="font-size: 0.9rem; opacity: 0.8;">Mon - Sun: 9:00 AM - 9:00 PM</p>
         </footer>
     </div>
 
@@ -633,6 +634,10 @@
                     <label>Footer Address</label>
                     <input type="text" id="settings-footer-address" placeholder="123 Your Street, City">
                 </div>
+                <div class="form-group">
+                    <label>Opening Hours</label>
+                    <input type="text" id="settings-hours" placeholder="Mon - Sun: 9:00 AM - 9:00 PM">
+                </div>
                 <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
             </div>
         </div>
@@ -658,7 +663,8 @@
                 categories: ['Coffee', 'Food', 'Desserts'],
                 headerImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800',
                 footerCopyright: '© 2024 The Daily Grind',
-                footerAddress: '123 Coffee Lane, Brewville'
+                footerAddress: '123 Coffee Lane, Brewville',
+                hours: 'Mon - Sun: 9:00 AM - 9:00 PM'
             },
             currentCategory: 'all',
             editingProductId: null,
@@ -712,7 +718,8 @@
                             categories: shopInfo.categories || state.shop.categories,
                             headerImage: shopInfo.cover_image_url || state.shop.headerImage,
                             footerCopyright: shopInfo.footer_copyright || state.shop.footerCopyright,
-                            footerAddress: shopInfo.address || state.shop.footerAddress
+                            footerAddress: shopInfo.address || state.shop.footerAddress,
+                            hours: shopInfo.hours || state.shop.hours
                         };
                     }
 
@@ -757,7 +764,8 @@
                             admin_password: state.shop.password,
                             cover_image_url: state.shop.headerImage,
                             footer_copyright: state.shop.footerCopyright,
-                            address: state.shop.footerAddress
+                            address: state.shop.footerAddress,
+                            hours: state.shop.hours
                         })
                         .eq('id', state.shop.id);
 
@@ -790,6 +798,7 @@
             // Render footer
             document.getElementById('footer-copyright').textContent = state.shop.footerCopyright;
             document.getElementById('footer-address').textContent = state.shop.footerAddress;
+            document.getElementById('footer-hours').textContent = state.shop.hours;
         }
 
         function renderCategories() {
@@ -1222,6 +1231,7 @@
             document.getElementById('settings-cover-image').value = state.shop.headerImage || '';
             document.getElementById('settings-footer-copyright').value = state.shop.footerCopyright || '';
             document.getElementById('settings-footer-address').value = state.shop.footerAddress || '';
+            document.getElementById('settings-hours').value = state.shop.hours || '';
 
             // Reset cover image preview
             state.pendingCoverImage = null;
@@ -1246,6 +1256,7 @@
             state.shop.password = document.getElementById('settings-password').value.trim() || state.shop.password;
             state.shop.footerCopyright = document.getElementById('settings-footer-copyright').value.trim() || state.shop.footerCopyright;
             state.shop.footerAddress = document.getElementById('settings-footer-address').value.trim() || state.shop.footerAddress;
+            state.shop.hours = document.getElementById('settings-hours').value.trim() || state.shop.hours;
 
             const categoriesInput = document.getElementById('settings-categories').value;
             const categories = categoriesInput.split(',').map(c => c.trim()).filter(c => c.length > 0);
