@@ -679,6 +679,7 @@
 
                     if (!shopError && shopInfo) {
                         state.shop = {
+                            id: shopInfo.id,  // Store the UUID
                             name: shopInfo.name || state.shop.name,
                             whatsapp: shopInfo.whatsapp || state.shop.whatsapp,
                             password: shopInfo.admin_password || state.shop.password,
@@ -717,18 +718,24 @@
             }));
 
             // If Supabase available, sync there too
-            if (supabaseClient) {
+            if (supabaseClient && state.shop.id) {
                 try {
-                    await supabaseClient
+                    const { error } = await supabaseClient
                         .from('shop_info')
-                        .upsert({
-                            id: 1,
+                        .update({
                             name: state.shop.name,
                             whatsapp: state.shop.whatsapp,
                             admin_password: state.shop.password,
                             categories: state.shop.categories,
                             cover_image_url: state.shop.headerImage
-                        });
+                        })
+                        .eq('id', state.shop.id);
+
+                    if (error) {
+                        console.error('Shop info save error:', error);
+                    } else {
+                        console.log('Shop info saved to Supabase');
+                    }
                 } catch (error) {
                     console.error('Supabase save error:', error);
                 }
