@@ -1020,101 +1020,123 @@
             openProductModal(productId);
         }
 
+        let isSaving = false;  // Prevent double-click duplicates
+
         async function saveProduct() {
-            const name = document.getElementById('prod-name').value.trim();
-            const description = document.getElementById('prod-desc').value.trim();
-            const price = parseFloat(document.getElementById('prod-price').value) || 0;
-            const category = document.getElementById('prod-category').value;
-            let image = document.getElementById('prod-image').value.trim();
+            // Prevent multiple saves
+            if (isSaving) return;
+            isSaving = true;
 
-            if (!name) {
-                alert('Please enter a product name');
-                return;
+            const saveBtn = document.querySelector('#product-modal .btn-primary');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Saving...';
             }
 
-            // Handle image upload if file was selected
-            if (state.pendingProductImage) {
-                const uploadedUrl = await uploadImage(state.pendingProductImage, 'products');
-                if (uploadedUrl) {
-                    image = uploadedUrl;
+            try {
+                const name = document.getElementById('prod-name').value.trim();
+                const description = document.getElementById('prod-desc').value.trim();
+                const price = parseFloat(document.getElementById('prod-price').value) || 0;
+                const category = document.getElementById('prod-category').value;
+                let image = document.getElementById('prod-image').value.trim();
+
+                if (!name) {
+                    alert('Please enter a product name');
+                    return;
                 }
-                state.pendingProductImage = null;
-            }
 
-            const productData = {
-                name: name,
-                description: description,
-                price: price,
-                category: category,
-                image_url: image,
-                visible: true
-            };
-
-            if (state.editingProductId) {
-                // Update existing product
-                if (supabaseClient) {
-                    try {
-                        const { error } = await supabaseClient
-                            .from('products')
-                            .update(productData)
-                            .eq('id', state.editingProductId);
-
-                        if (error) {
-                            console.error('Update error:', error);
-                            alert('Failed to update in database: ' + error.message);
-                        } else {
-                            console.log('Product updated in Supabase');
-                        }
-                    } catch (error) {
-                        console.error('Update error:', error);
-                        alert('Failed to update: ' + error.message);
+                // Handle image upload if file was selected
+                if (state.pendingProductImage) {
+                    const uploadedUrl = await uploadImage(state.pendingProductImage, 'products');
+                    if (uploadedUrl) {
+                        image = uploadedUrl;
                     }
+                    state.pendingProductImage = null;
                 }
 
-                const index = state.products.findIndex(p => p.id == state.editingProductId);
-                if (index !== -1) {
-                    state.products[index] = { ...state.products[index], ...productData };
-                }
-            } else {
-                // Add new product
-                const newProduct = {
-                    ...productData,
-                    id: 'local_' + Date.now()
+                const productData = {
+                    name: name,
+                    description: description,
+                    price: price,
+                    category: category,
+                    image_url: image,
+                    visible: true
                 };
 
-                if (supabaseClient) {
-                    try {
-                        // Add created_at for ordering
-                        const insertData = {
-                            ...productData,
-                            created_at: new Date().toISOString()
-                        };
+                if (state.editingProductId) {
+                    // Update existing product
+                    if (supabaseClient) {
+                        try {
+                            const { error } = await supabaseClient
+                                .from('products')
+                                .update(productData)
+                                .eq('id', state.editingProductId);
 
-                        const { data, error } = await supabaseClient
-                            .from('products')
-                            .insert(insertData)
-                            .select()
-                            .single();
-
-                        if (error) {
-                            console.error('Insert error:', error);
-                            alert('Failed to save to database: ' + error.message + '. Data saved locally only.');
-                        } else {
-                            newProduct.id = data.id;
-                            console.log('Product saved to Supabase with ID:', data.id);
+                            if (error) {
+                                console.error('Update error:', error);
+                                alert('Failed to update in database: ' + error.message);
+                            } else {
+                                console.log('Product updated in Supabase');
+                            }
+                        } catch (error) {
+                            console.error('Update error:', error);
+                            alert('Failed to update: ' + error.message);
                         }
-                    } catch (error) {
-                        console.error('Insert error:', error);
-                        alert('Failed to save: ' + error.message);
                     }
+
+                    const index = state.products.findIndex(p => p.id == state.editingProductId);
+                    if (index !== -1) {
+                        state.products[index] = { ...state.products[index], ...productData };
+                    }
+                } else {
+                    // Add new product
+                    const newProduct = {
+                        ...productData,
+                        id: 'local_' + Date.now()
+                    };
+
+                    if (supabaseClient) {
+                        try {
+                            // Add created_at for ordering
+                            const insertData = {
+                                ...productData,
+                                created_at: new Date().toISOString()
+                            };
+
+                            const { data, error } = await supabaseClient
+                                .from('products')
+                                .insert(insertData)
+                                .select()
+                                .single();
+
+                            if (error) {
+                                console.error('Insert error:', error);
+                                alert('Failed to save to database: ' + error.message + '. Data saved locally only.');
+                            } else {
+                                newProduct.id = data.id;
+                                console.log('Product saved to Supabase with ID:', data.id);
+                            }
+                        } catch (error) {
+                            console.error('Insert error:', error);
+                            alert('Failed to save: ' + error.message);
+                        }
+                    }
+
+                    state.products.unshift(newProduct);
                 }
 
-                state.products.unshift(newProduct);
+                await saveData();
+                render();
+                closeModal('product-modal');
+            } finally {
+                // Reset saving state
+                isSaving = false;
+                const saveBtn = document.querySelector('#product-modal .btn-primary');
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save Product';
+                }
             }
-
-            await saveData();
-            render();
-            closeModal('product-modal');
         }
 
         async function deleteProduct(productId) {
