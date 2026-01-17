@@ -472,7 +472,7 @@
         <!-- Header -->
         <header class="header" id="header">
             <h1 id="shop-name">The Daily Grind</h1>
-            <p>Premium Coffee & Artisan Eats</p>
+            <p id="shop-tagline">Premium Coffee & Artisan Eats</p>
         </header>
 
         <!-- Categories -->
@@ -586,6 +586,10 @@
                     <input type="text" id="settings-name" placeholder="Shop name">
                 </div>
                 <div class="form-group">
+                    <label>Tagline</label>
+                    <input type="text" id="settings-tagline" placeholder="Premium Coffee & Artisan Eats">
+                </div>
+                <div class="form-group">
                     <label>WhatsApp Number</label>
                     <input type="text" id="settings-whatsapp" placeholder="+1234567890">
                 </div>
@@ -630,6 +634,7 @@
             products: [],
             shop: {
                 name: 'The Daily Grind',
+                tagline: 'Premium Coffee & Artisan Eats',
                 whatsapp: '+1234567890',
                 password: CONFIG.DEFAULT_PASSWORD,
                 categories: ['Coffee', 'Food', 'Desserts'],
@@ -681,6 +686,7 @@
                         state.shop = {
                             id: shopInfo.id,  // Store the UUID
                             name: shopInfo.name || state.shop.name,
+                            tagline: shopInfo.tagline || state.shop.tagline,
                             whatsapp: shopInfo.whatsapp || state.shop.whatsapp,
                             password: shopInfo.admin_password || state.shop.password,
                             categories: shopInfo.categories || state.shop.categories,
@@ -724,6 +730,7 @@
                         .from('shop_info')
                         .update({
                             name: state.shop.name,
+                            tagline: state.shop.tagline,
                             whatsapp: state.shop.whatsapp,
                             admin_password: state.shop.password,
                             categories: state.shop.categories,
@@ -752,6 +759,7 @@
 
         function renderHeader() {
             document.getElementById('shop-name').textContent = state.shop.name;
+            document.getElementById('shop-tagline').textContent = state.shop.tagline;
             const header = document.getElementById('header');
             if (state.shop.headerImage) {
                 header.style.background = 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url("' + state.shop.headerImage + '") center/cover';
@@ -793,7 +801,7 @@
                     '<p class="menu-item-desc">' + (product.description || '') + '</p>' +
                     '</div>' +
                     '<div class="menu-item-footer">' +
-                    '<span class="menu-item-price">$' + parseFloat(product.price).toFixed(2) + '</span>' +
+                    '<span class="menu-item-price">₹' + parseFloat(product.price).toFixed(2) + '</span>' +
                     '<button class="order-btn" onclick="orderItem(\'' + product.id + '\')">Order</button>' +
                     '</div>' +
                     '</div>' +
@@ -810,7 +818,7 @@
                 return '<div class="admin-item">' +
                     '<div class="admin-item-info">' +
                     '<h3>' + product.name + '</h3>' +
-                    '<p>$' + parseFloat(product.price).toFixed(2) + ' - ' + product.category + '</p>' +
+                    '<p>₹' + parseFloat(product.price).toFixed(2) + ' - ' + product.category + '</p>' +
                     '</div>' +
                     '<div class="admin-item-actions">' +
                     '<button class="toggle-btn ' + (isHidden ? 'hidden-item' : '') + '" onclick="toggleVisibility(\'' + product.id + '\')">' + (isHidden ? 'Hidden' : 'Visible') + '</button>' +
@@ -1148,6 +1156,7 @@
         // ==================== SETTINGS ====================
         function openSettingsModal() {
             document.getElementById('settings-name').value = state.shop.name;
+            document.getElementById('settings-tagline').value = state.shop.tagline;
             document.getElementById('settings-whatsapp').value = state.shop.whatsapp;
             document.getElementById('settings-password').value = state.shop.password;
             document.getElementById('settings-categories').value = state.shop.categories.join(', ');
@@ -1171,6 +1180,7 @@
 
         async function saveSettings() {
             state.shop.name = document.getElementById('settings-name').value.trim() || state.shop.name;
+            state.shop.tagline = document.getElementById('settings-tagline').value.trim() || state.shop.tagline;
             state.shop.whatsapp = document.getElementById('settings-whatsapp').value.trim() || state.shop.whatsapp;
             state.shop.password = document.getElementById('settings-password').value.trim() || state.shop.password;
 
