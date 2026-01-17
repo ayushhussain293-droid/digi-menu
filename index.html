@@ -566,6 +566,16 @@
                     <div class="or-divider"><span>or paste URL</span></div>
                     <input type="text" id="prod-image" placeholder="https://..." style="margin-top: 5px;">
                 </div>
+                <div class="form-group" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                        <input type="checkbox" id="prod-hide-name" style="width: 18px; height: 18px;">
+                        Hide Name
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                        <input type="checkbox" id="prod-hide-desc" style="width: 18px; height: 18px;">
+                        Hide Description
+                    </label>
+                </div>
                 <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
                 <button class="btn btn-danger" id="delete-product-btn" style="display: none;"
                     onclick="deleteProduct()">Delete Product</button>
@@ -700,7 +710,9 @@
                             whatsapp: shopInfo.whatsapp || state.shop.whatsapp,
                             password: shopInfo.admin_password || state.shop.password,
                             categories: shopInfo.categories || state.shop.categories,
-                            headerImage: shopInfo.cover_image_url || state.shop.headerImage
+                            headerImage: shopInfo.cover_image_url || state.shop.headerImage,
+                            footerCopyright: shopInfo.footer_copyright || state.shop.footerCopyright,
+                            footerAddress: shopInfo.footer_address || state.shop.footerAddress
                         };
                     }
 
@@ -743,7 +755,9 @@
                             tagline: state.shop.tagline,
                             whatsapp: state.shop.whatsapp,
                             admin_password: state.shop.password,
-                            cover_image_url: state.shop.headerImage
+                            cover_image_url: state.shop.headerImage,
+                            footer_copyright: state.shop.footerCopyright,
+                            footer_address: state.shop.footerAddress
                         })
                         .eq('id', state.shop.id);
 
@@ -805,12 +819,14 @@
 
             container.innerHTML = filteredProducts.map(product => {
                 const imageUrl = product.image_url || 'https://images.unsplash.com/photo-4d71bcdd2085?w=400';
+                const showName = !product.hide_name;
+                const showDesc = !product.hide_description;
                 return '<div class="menu-item" data-id="' + product.id + '">' +
-                    '<img src="' + imageUrl + '" alt="' + product.name + '" class="menu-item-image">' +
+                    '<img src="' + imageUrl + '" alt="' + (product.name || 'Product') + '" class="menu-item-image">' +
                     '<div class="menu-item-content">' +
                     '<div>' +
-                    '<h3 class="menu-item-name">' + product.name + '</h3>' +
-                    '<p class="menu-item-desc">' + (product.description || '') + '</p>' +
+                    (showName ? '<h3 class="menu-item-name">' + product.name + '</h3>' : '') +
+                    (showDesc && product.description ? '<p class="menu-item-desc">' + product.description + '</p>' : '') +
                     '</div>' +
                     '<div class="menu-item-footer">' +
                     '<span class="menu-item-price">₹' + parseFloat(product.price).toFixed(2) + '</span>' +
@@ -983,6 +999,8 @@
                     document.getElementById('prod-price').value = product.price;
                     document.getElementById('prod-category').value = product.category;
                     document.getElementById('prod-image').value = product.image_url || '';
+                    document.getElementById('prod-hide-name').checked = product.hide_name || false;
+                    document.getElementById('prod-hide-desc').checked = product.hide_description || false;
                     deleteBtn.style.display = 'block';
 
                     // Show existing image preview
@@ -1005,6 +1023,8 @@
                 document.getElementById('prod-price').value = '';
                 document.getElementById('prod-category').value = state.shop.categories[0] || '';
                 document.getElementById('prod-image').value = '';
+                document.getElementById('prod-hide-name').checked = false;
+                document.getElementById('prod-hide-desc').checked = false;
                 deleteBtn.style.display = 'none';
 
                 // Reset image preview
@@ -1054,13 +1074,18 @@
                     state.pendingProductImage = null;
                 }
 
+                const hideNameChecked = document.getElementById('prod-hide-name').checked;
+                const hideDescChecked = document.getElementById('prod-hide-desc').checked;
+
                 const productData = {
                     name: name,
                     description: description,
                     price: price,
                     category: category,
                     image_url: image,
-                    visible: true
+                    visible: true,
+                    hide_name: hideNameChecked,
+                    hide_description: hideDescChecked
                 };
 
                 if (state.editingProductId) {
@@ -1329,7 +1354,7 @@
             const product = state.products.find(p => p.id == productId);
             if (!product) return;
 
-            const message = 'Hi! I would like to order: ' + product.name + ' ($' + parseFloat(product.price).toFixed(2) + ')';
+            const message = 'Hi! I would like to order: ' + product.name + ' (₹' + parseFloat(product.price).toFixed(2) + ')';
             const whatsappUrl = 'https://wa.me/' + state.shop.whatsapp.replace(/[^0-9]/g, '') + '?text=' + encodeURIComponent(message);
             window.open(whatsappUrl, '_blank');
         }
