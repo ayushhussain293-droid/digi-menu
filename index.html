@@ -681,9 +681,9 @@
                         state.shop = {
                             name: shopInfo.name || state.shop.name,
                             whatsapp: shopInfo.whatsapp || state.shop.whatsapp,
-                            password: shopInfo.password || state.shop.password,
+                            password: shopInfo.admin_password || state.shop.password,
                             categories: shopInfo.categories || state.shop.categories,
-                            headerImage: shopInfo.header_image || state.shop.headerImage
+                            headerImage: shopInfo.cover_image_url || state.shop.headerImage
                         };
                     }
 
@@ -725,9 +725,9 @@
                             id: 1,
                             name: state.shop.name,
                             whatsapp: state.shop.whatsapp,
-                            password: state.shop.password,
+                            admin_password: state.shop.password,
                             categories: state.shop.categories,
-                            header_image: state.shop.headerImage
+                            cover_image_url: state.shop.headerImage
                         });
                 } catch (error) {
                     console.error('Supabase save error:', error);
