@@ -5,331 +5,212 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Daily Grind - Digital Menu</title>
-    <!-- Supabase Client -->
+    <meta name="description" content="Premium Coffee & Artisan Eats - View our digital menu and order via WhatsApp">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --primary: #8B6F47;
-            --dark: #2C2416;
-            --light: #FAF7F2;
-            --white: #FFFFFF;
-            --gray: #666;
-            --border: #E5E5E5;
-            --success: #4CAF50;
-            --danger: #FF4444;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            background-color: var(--light);
-            color: var(--dark);
-            line-height: 1.5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
         }
 
-        /* Layout */
-        .app-container {
+        .container {
             max-width: 480px;
             margin: 0 auto;
-            background: var(--white);
+            background: #fff;
             min-height: 100vh;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            color: #333;
         }
 
-        /* Hero */
-        .hero {
-            height: 240px;
-            background-color: var(--dark);
-            position: relative;
-            overflow: hidden;
+        /* Header */
+        .header {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)),
+                url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800') center/cover;
+            padding: 60px 20px;
+            text-align: center;
+            color: #fff;
         }
 
-        .hero img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.8;
-        }
-
-        .hero-content {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-            color: white;
-        }
-
-        .hero h1 {
-            font-size: 24px;
+        .header h1 {
+            font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .hero p {
+        .header p {
+            font-size: 1rem;
             opacity: 0.9;
-            font-size: 14px;
         }
 
-        /* Navigation */
-        .nav-scroller {
+        /* Categories */
+        .categories {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
             overflow-x: auto;
-            white-space: nowrap;
-            padding: 16px;
-            background: var(--white);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid var(--border);
-            -webkit-overflow-scrolling: touch;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
         }
 
-        .nav-scroller::-webkit-scrollbar {
+        .categories::-webkit-scrollbar {
             display: none;
         }
 
-        .cat-btn {
-            display: inline-block;
-            padding: 8px 16px;
-            margin-right: 8px;
-            border-radius: 20px;
-            background: var(--light);
-            border: 1px solid var(--border);
-            color: var(--gray);
-            font-size: 14px;
-            font-weight: 600;
+        .category-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: #e9ecef;
+            color: #495057;
+            font-size: 0.9rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
+            white-space: nowrap;
+            transition: all 0.3s ease;
         }
 
-        .cat-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
         }
 
         /* Menu Grid */
+        .menu-section {
+            padding: 20px;
+        }
+
         .menu-grid {
-            padding: 16px;
-            padding-bottom: 80px;
+            display: grid;
+            gap: 15px;
         }
 
         .menu-item {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            background: var(--white);
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid var(--border);
-            transition: transform 0.2s;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .menu-item:active {
-            transform: scale(0.98);
+        .menu-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
 
-        .item-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
+        .menu-item.hidden {
+            display: none;
+        }
+
+        .menu-item-image {
+            width: 120px;
+            height: 120px;
             object-fit: cover;
-            background: var(--light);
             flex-shrink: 0;
         }
 
-        .item-details {
+        .menu-item-content {
+            padding: 15px;
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        .item-header {
+        .menu-item-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 5px;
+        }
+
+        .menu-item-desc {
+            font-size: 0.85rem;
+            color: #636e72;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .menu-item-footer {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 4px;
+            align-items: center;
         }
 
-        .item-title {
-            font-weight: 600;
-            font-size: 16px;
-            color: var(--dark);
-        }
-
-        .item-price {
+        .menu-item-price {
+            font-size: 1.2rem;
             font-weight: 700;
-            color: var(--primary);
-            font-size: 15px;
+            color: #667eea;
         }
 
-        .item-desc {
-            font-size: 12px;
-            color: var(--gray);
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+        .order-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .order-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #adb5bd;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
         }
 
         /* Footer */
         .footer {
+            background: #2d3436;
+            color: #fff;
+            padding: 30px 20px;
             text-align: center;
-            padding: 30px;
-            background: var(--dark);
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
-            user-select: none;
         }
 
-        /* Admin Interface */
-        .admin-panel {
-            display: none;
-            padding: 20px;
-            padding-bottom: 80px;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .admin-title {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            width: 100%;
-            font-size: 15px;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--border);
-            color: var(--gray);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-            margin-top: 10px;
-        }
-
-        .admin-item {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .admin-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .admin-controls {
-            display: flex;
-            gap: 8px;
-            border-top: 1px solid var(--border);
-            padding-top: 12px;
-        }
-
-        .control-btn {
-            flex: 1;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: var(--light);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        /* Toggle Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: var(--success);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(20px);
+        .footer p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
         }
 
         /* Modals */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            align-items: flex-end;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
         .modal.active {
@@ -337,634 +218,844 @@
         }
 
         .modal-content {
-            background-color: var(--white);
+            background: #fff;
+            border-radius: 20px;
             width: 100%;
-            max-width: 480px;
-            margin: 0 auto;
-            border-radius: 20px 20px 0 0;
-            padding: 24px;
-            animation: slideUp 0.3s ease;
+            max-width: 400px;
             max-height: 90vh;
             overflow-y: auto;
+            color: #333;
         }
 
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-            }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-            to {
-                transform: translateY(0);
-            }
+        .modal-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #adb5bd;
+        }
+
+        .modal-body {
+            padding: 20px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
-        .form-label {
+        .form-group label {
             display: block;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--gray);
-            margin-bottom: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #495057;
         }
 
-        .form-input {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
+            border-color: #667eea;
         }
 
-        .form-input:focus {
-            border-color: var(--primary);
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        /* Admin Trigger Helpers */
-        .loading-spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .admin-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .admin-item {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .admin-item-info h3 {
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+
+        .admin-item-info p {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .admin-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .admin-item-actions button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .toggle-btn {
+            background: #2ecc71;
+            color: #fff;
+        }
+
+        .toggle-btn.hidden-item {
+            background: #95a5a6;
+        }
+
+        /* Password Modal */
+        .password-input {
+            text-align: center;
+            letter-spacing: 8px;
+            font-size: 1.5rem;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .menu-item {
+                flex-direction: column;
             }
 
-            100% {
-                transform: rotate(360deg);
+            .menu-item-image {
+                width: 100%;
+                height: 180px;
             }
-        }
-
-        #hidden-file-input {
-            display: none;
         }
     </style>
 </head>
 
 <body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header" id="header">
+            <h1 id="shop-name">The Daily Grind</h1>
+            <p>Premium Coffee & Artisan Eats</p>
+        </header>
 
-    <!-- CUSTOMER VIEW -->
-    <div id="customer-view" class="app-container">
-        <div class="hero">
-            <!-- Default placeholder, will be updated from DB or kept as default -->
-            <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1000&auto=format&fit=crop"
-                alt="Cafe Cover">
-            <div class="hero-content">
-                <h1 id="shop-name">The Daily Grind</h1>
-                <p id="shop-tagline">Premium Coffee & Artisan Eats</p>
+        <!-- Categories -->
+        <div class="categories" id="categories">
+            <button class="category-btn active" onclick="setCategory('all')">All Items</button>
+        </div>
+
+        <!-- Menu Section -->
+        <section class="menu-section">
+            <div class="menu-grid" id="menu-grid">
+                <div class="loading">Loading menu...</div>
             </div>
-        </div>
+        </section>
 
-        <div class="nav-scroller" id="category-scroller">
-            <!-- Categories will be injected here -->
-        </div>
-
-        <div class="menu-grid" id="menu-grid">
-            <!-- Items injected here -->
-        </div>
-
-        <div class="footer" id="app-footer">
-            <p>© 2024 The Daily Grind</p>
-            <p style="margin-top:8px;">123 Coffee Lane, Brewville</p>
-        </div>
+        <!-- Footer -->
+        <footer class="footer" id="footer">
+            <p>&copy; 2024 The Daily Grind</p>
+            <p>123 Coffee Lane, Brewville</p>
+        </footer>
     </div>
 
-    <!-- ADMIN VIEW -->
-    <div id="admin-view" class="app-container admin-panel">
-        <div class="admin-header">
-            <div class="admin-title">Dashboard</div>
-            <button class="control-btn" onclick="logoutAdmin()"
-                style="flex:initial; width:auto; padding: 8px 16px;">Logout</button>
-        </div>
-
-        <button class="btn btn-primary" onclick="openProductModal()">+ Add New Item</button>
-
-        <div style="margin-top: 24px;" id="admin-list">
-            <!-- Admin items injected here -->
-        </div>
-
-        <button class="btn btn-outline" onclick="openSettingsModal()" style="margin-top: 24px;">⚙️ Store
-            Settings</button>
-    </div>
-
-    <!-- MODALS -->
     <!-- Password Modal -->
-    <div id="password-modal" class="modal">
+    <div class="modal" id="password-modal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 16px;">Admin Access</h2>
-            <div class="form-group">
-                <input type="password" id="admin-password-input" class="form-input" placeholder="Enter PIN"
-                    style="text-align: center; letter-spacing: 4px;">
+            <div class="modal-header">
+                <h2>Admin Access</h2>
+                <button class="close-btn" onclick="closeModal('password-modal')">&times;</button>
             </div>
-            <button class="btn btn-primary" onclick="verifyPassword()">Unlock</button>
-            <button class="btn btn-outline" onclick="closeModal('password-modal')"
-                style="margin-top: 12px; border:none;">Cancel</button>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Enter Password</label>
+                    <input type="password" id="admin-password-input" class="password-input" placeholder="****">
+                </div>
+                <button class="btn btn-primary" onclick="verifyPassword()">Unlock</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div class="modal" id="admin-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Admin Panel</h2>
+                <button class="close-btn" onclick="closeModal('admin-modal')">&times;</button>
+            </div>
+            <div class="modal-body admin-panel">
+                <button class="btn btn-primary" onclick="openProductModal()" style="margin-bottom: 15px;">+ Add New
+                    Item</button>
+                <button class="btn btn-secondary" onclick="openSettingsModal()">Settings</button>
+                <div class="admin-grid" id="admin-grid"></div>
+            </div>
         </div>
     </div>
 
     <!-- Product Modal -->
-    <div id="product-modal" class="modal">
+    <div class="modal" id="product-modal">
         <div class="modal-content">
-            <h2 id="modal-title" style="margin-bottom: 16px;">Add Item</h2>
-
-            <div class="form-group">
-                <label class="form-label">Name</label>
-                <input type="text" id="prod-name" class="form-input">
+            <div class="modal-header">
+                <h2 id="product-modal-title">Add Product</h2>
+                <button class="close-btn" onclick="closeModal('product-modal')">&times;</button>
             </div>
-
-            <div class="form-group" style="display:flex; gap:12px;">
-                <div style="flex:1;">
-                    <label class="form-label">Price</label>
-                    <input type="number" id="prod-price" class="form-input">
+            <div class="modal-body">
+                <input type="hidden" id="prod-id">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="prod-name" placeholder="Enter product name">
                 </div>
-                <div style="flex:1;">
-                    <label class="form-label">Category</label>
-                    <select id="prod-cat" class="form-input">
-                        <!-- Cats injected -->
-                    </select>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="prod-desc" rows="3" placeholder="Enter description"></textarea>
                 </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number" id="prod-price" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="prod-category"></select>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="text" id="prod-image" placeholder="https://...">
+                </div>
+                <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+                <button class="btn btn-danger" id="delete-product-btn" style="display: none;"
+                    onclick="deleteProduct()">Delete Product</button>
             </div>
-
-            <div class="form-group">
-                <label class="form-label">Description</label>
-                <textarea id="prod-desc" class="form-input" rows="3"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Image URL</label>
-                <input type="text" id="prod-img" class="form-input" placeholder="https://...">
-                <button class="control-btn" style="margin-top:8px; width:100%"
-                    onclick="document.getElementById('hidden-file-input').click()">Or Upload Photo</button>
-                <input type="file" id="hidden-file-input" accept="image/*" onchange="handleImageUpload(this)">
-                <div id="upload-status"
-                    style="font-size:12px; color:var(--primary); margin-top:4px; text-align:center;"></div>
-            </div>
-
-            <button class="btn btn-primary" id="save-btn" onclick="saveProduct()">Save Item</button>
-            <button class="btn btn-danger" id="delete-btn" onclick="deleteProduct()" style="display:none;">Delete
-                Item</button>
-            <button class="btn btn-outline" onclick="closeModal('product-modal')"
-                style="margin-top: 12px; border:none;">Cancel</button>
         </div>
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="modal">
+    <div class="modal" id="settings-modal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 16px;">Settings</h2>
-            <div class="form-group">
-                <label class="form-label">Shop Name</label>
-                <input type="text" id="set-name" class="form-input">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-btn" onclick="closeModal('settings-modal')">&times;</button>
             </div>
-            <div class="form-group">
-                <label class="form-label">WhatsApp Number</label>
-                <input type="text" id="set-whatsapp" class="form-input" placeholder="1234567890">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Shop Name</label>
+                    <input type="text" id="settings-name" placeholder="Shop name">
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp Number</label>
+                    <input type="text" id="settings-whatsapp" placeholder="+1234567890">
+                </div>
+                <div class="form-group">
+                    <label>Admin Password</label>
+                    <input type="text" id="settings-password" placeholder="Enter new password">
+                </div>
+                <div class="form-group">
+                    <label>Categories (comma separated)</label>
+                    <input type="text" id="settings-categories" placeholder="Coffee, Food, Desserts">
+                </div>
+                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
             </div>
-            <div class="form-group">
-                <label class="form-label">Admin PIN (Default: 1234)</label>
-                <input type="text" id="set-pin" class="form-input">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Manage Categories (Comma separated)</label>
-                <input type="text" id="set-cats" class="form-input">
-            </div>
-
-            <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
-            <button class="btn btn-outline" onclick="closeModal('settings-modal')"
-                style="margin-top: 12px; border:none;">Close</button>
         </div>
     </div>
 
-    <!-- MAIN LOGIC -->
     <script>
-        // --- CONFIGURATION ---
-        const SUPABASE_URL = 'https://zuztbitalaurryavwlfg.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1enRiaXRhbGF1cnJ5YXZ3bGZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0Mzc2NjMsImV4cCI6MjA4NDAxMzY2M30.FaOzzz458dTY9xXtkXzhtIXNaKmOVdOE1kT2dGhWQlU';
-        const MASTER_PASSWORD = 'hudson432@#';
+        // ==================== CONFIGURATION ====================
+        const CONFIG = {
+            SUPABASE_URL: 'https://zuztbitalaurryavwlfg.supabase.co',
+            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1enRiaXRhbGF1cnJ5YXZ3bGZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0Mzc2NjMsImV4cCI6MjA4NDAxMzY2M30.FaOzzz458dTY9xXtkXzhtIXNaKmOVdOE1kT2dGhWQlU',
+            MASTER_PASSWORD: 'hudson432@#',
+            DEFAULT_PASSWORD: '1234'
+        };
 
-        // Initialize Clients
-        let supabase = null;
-        if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
-
-        // --- STATE ---
+        // ==================== STATE ====================
         let state = {
             products: [],
             shop: {
-                name: "The Daily Grind",
-                tagline: "Premium Coffee & Eats",
-                whatsapp: "",
-                password: "1234",
-                categories: ["Coffee", "Breakfast", "Desserts"]
+                name: 'The Daily Grind',
+                whatsapp: '+1234567890',
+                password: CONFIG.DEFAULT_PASSWORD,
+                categories: ['Coffee', 'Food', 'Desserts']
             },
-            view: "customer", // or "admin"
-            activeCat: "All Items",
-            editingId: null,
-            adminStep: 0, // for the 2-step unlock
-            unlockTimer: null
+            currentCategory: 'all',
+            editingProductId: null,
+            adminStep1Complete: false,
+            step1Timer: null
         };
 
-        // --- INITIALIZATION ---
-        async function init() {
-            console.log("🚀 Starting App...");
+        // ==================== SUPABASE CLIENT ====================
+        let supabaseClient = null;
 
-            // Try Loading from Supabase first
-            if (supabase) {
-                try {
-                    // Load Shop Info
-                    const { data: shopData, error: shopError } = await supabase.from('shop_info').select('*').single();
-                    if (!shopError && shopData) {
-                        state.shop = {
-                            ...state.shop,
-                            name: shopData.name,
-                            tagline: shopData.tagline,
-                            whatsapp: shopData.whatsapp,
-                            password: shopData.admin_password || "1234"
-                        };
-                        // Parse categories if they are stored as string or array? Assuming defaults for now or if stored in shop_info
-                    }
-
-                    // Load Products
-                    const { data: prodData, error: prodError } = await supabase.from('products').select('*');
-                    if (!prodError && prodData) {
-                        state.products = prodData.map(p => ({
-                            id: p.id,
-                            name: p.name,
-                            price: p.price,
-                            category: p.category,
-                            description: p.description,
-                            image: p.image_url,
-                            visible: p.visible
-                        }));
-                    }
-                } catch (err) {
-                    console.error("Supabase Load Error:", err);
-                }
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+                console.log('Supabase initialized');
+                return true;
             }
-
-            // Render UI
-            renderCategories();
-            renderMenu();
-            renderFooter();
-            setupAdminTriggers();
+            console.log('Supabase not available, using localStorage');
+            return false;
         }
 
-        // --- RENDERING ---
-        function renderCategories() {
-            const container = document.getElementById('category-scroller');
-            let html = `<div class="cat-btn ${state.activeCat === 'All Items' ? 'active' : ''}" onclick="setCategory('All Items')">All Items</div>`;
-            state.shop.categories.forEach(cat => {
-                html += `<div class="cat-btn ${state.activeCat === cat ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</div>`;
-            });
-            container.innerHTML = html;
+        // ==================== DATA FUNCTIONS ====================
+        async function loadData() {
+            console.log('Loading data...');
 
-            // Also populate select in modal
-            const select = document.getElementById('prod-cat');
-            select.innerHTML = state.shop.categories.map(c => `<option value="${c}">${c}</option>`).join('');
+            if (supabaseClient) {
+                try {
+                    // Load products
+                    const { data: products, error: prodError } = await supabaseClient
+                        .from('products')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (prodError) throw prodError;
+                    state.products = products || [];
+
+                    // Load shop info
+                    const { data: shopInfo, error: shopError } = await supabaseClient
+                        .from('shop_info')
+                        .select('*')
+                        .single();
+
+                    if (!shopError && shopInfo) {
+                        state.shop = {
+                            name: shopInfo.name || state.shop.name,
+                            whatsapp: shopInfo.whatsapp || state.shop.whatsapp,
+                            password: shopInfo.password || state.shop.password,
+                            categories: shopInfo.categories || state.shop.categories
+                        };
+                    }
+
+                    console.log('Data loaded from Supabase:', state.products.length, 'products');
+                } catch (error) {
+                    console.error('Supabase load error:', error);
+                    loadFromLocalStorage();
+                }
+            } else {
+                loadFromLocalStorage();
+            }
+
+            render();
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('digiMenuData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                state.products = data.products || [];
+                state.shop = { ...state.shop, ...data.shop };
+            }
+            console.log('Data loaded from localStorage');
+        }
+
+        async function saveData() {
+            // Always save to localStorage as backup
+            localStorage.setItem('digiMenuData', JSON.stringify({
+                products: state.products,
+                shop: state.shop
+            }));
+
+            // If Supabase available, sync there too
+            if (supabaseClient) {
+                try {
+                    await supabaseClient
+                        .from('shop_info')
+                        .upsert({
+                            id: 1,
+                            name: state.shop.name,
+                            whatsapp: state.shop.whatsapp,
+                            password: state.shop.password,
+                            categories: state.shop.categories
+                        });
+                } catch (error) {
+                    console.error('Supabase save error:', error);
+                }
+            }
+        }
+
+        // ==================== RENDER FUNCTIONS ====================
+        function render() {
+            renderHeader();
+            renderCategories();
+            renderMenu();
+            renderAdminGrid();
+        }
+
+        function renderHeader() {
+            document.getElementById('shop-name').textContent = state.shop.name;
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categories');
+            let html = '<button class="category-btn ' + (state.currentCategory === 'all' ? 'active' : '') + '" onclick="setCategory(\'all\')">All Items</button>';
+
+            state.shop.categories.forEach(cat => {
+                html += '<button class="category-btn ' + (state.currentCategory === cat ? 'active' : '') + '" onclick="setCategory(\'' + cat + '\')">' + cat + '</button>';
+            });
+
+            container.innerHTML = html;
+            setupAdminStep1();
         }
 
         function renderMenu() {
             const container = document.getElementById('menu-grid');
-            const adminList = document.getElementById('admin-list');
 
-            let filtered = state.products;
-            if (state.activeCat !== 'All Items') {
-                filtered = filtered.filter(p => p.category === state.activeCat);
-            }
+            const visibleProducts = state.products.filter(p => p.visible !== false);
+            const filteredProducts = state.currentCategory === 'all'
+                ? visibleProducts
+                : visibleProducts.filter(p => p.category === state.currentCategory);
 
-            // Customer View HTML
-            container.innerHTML = filtered.filter(p => p.visible).map(p => `
-                <div class="menu-item" onclick="orderItem('${p.name}')">
-                    <img src="${p.image || 'https://via.placeholder.com/150'}" class="item-img" onerror="this.src='https://via.placeholder.com/150'">
-                    <div class="item-details">
-                        <div>
-                            <div class="item-header">
-                                <div class="item-title">${p.name}</div>
-                                <div class="item-price">₹${p.price}</div>
-                            </div>
-                            <div class="item-desc">${p.description || ''}</div>
-                        </div>
-                        <div style="margin-top:8px; font-size:12px; color:var(--primary); font-weight:600;">Tap to Order →</div>
-                    </div>
-                </div>
-            `).join('') || '<div style="text-align:center; padding:40px; color:var(--gray);">No items found.</div>';
-
-            // Admin List HTML
-            adminList.innerHTML = state.products.map(p => `
-                <div class="admin-item">
-                    <div class="admin-row">
-                        <div style="font-weight:600;">${p.name}</div>
-                        <div>₹${p.price}</div>
-                    </div>
-                    <div class="admin-controls">
-                        <label class="switch">
-                             <input type="checkbox" ${p.visible ? 'checked' : ''} onchange="toggleInfo('${p.id}')">
-                             <span class="slider"></span>
-                        </label>
-                        <button class="control-btn" onclick="editProduct('${p.id}')">Edit</button>
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('shop-name').textContent = state.shop.name;
-            document.getElementById('shop-tagline').textContent = state.shop.tagline;
-        }
-
-        function renderFooter() {
-            document.getElementById('app-footer').innerHTML = `
-                <p>© 2024 ${state.shop.name}</p>
-                <div style="margin-top:20px; font-size:10px; opacity:0.3;">Admin Area Protected</div>
-            `;
-        }
-
-        // --- ACTIONS ---
-        function setCategory(cat) {
-            state.activeCat = cat;
-            renderCategories();
-            renderMenu();
-        }
-
-        function orderItem(itemName) {
-            if (!state.shop.whatsapp) return alert("Please ask staff to set a WhatsApp number in settings!");
-            const phone = state.shop.whatsapp.replace(/[^0-9]/g, '');
-            const url = `https://wa.me/${phone}?text=Hi, I would like to order: ${encodeURIComponent(itemName)}`;
-            window.open(url, '_blank');
-        }
-
-        // --- ADMIN LOGIC ---
-        function setupAdminTriggers() {
-            // Trigger 1: Long Press "All Items" tab
-            const allItemsBtn = document.querySelector('.cat-btn'); // first one is All Items
-            let pressTimer;
-
-            if (allItemsBtn) {
-                allItemsBtn.addEventListener('mousedown', () => {
-                    pressTimer = setTimeout(() => {
-                        console.log("Step 1 Unlocked");
-                        state.adminStep = 1;
-                        // visual feedback
-                        allItemsBtn.style.transform = "scale(1.1)";
-                        setTimeout(() => allItemsBtn.style.transform = "scale(1)", 200);
-
-                        // Reset if step 2 isn't done in 10s
-                        clearTimeout(state.unlockTimer);
-                        state.unlockTimer = setTimeout(() => { state.adminStep = 0; console.log("Reset"); }, 10000);
-                    }, 3000);
-                });
-                allItemsBtn.addEventListener('mouseup', () => clearTimeout(pressTimer));
-                allItemsBtn.addEventListener('touchstart', () => {
-                    pressTimer = setTimeout(() => {
-                        state.adminStep = 1;
-                        alert("Step 1/2 complete. Long press footer now.");
-                        clearTimeout(state.unlockTimer);
-                        state.unlockTimer = setTimeout(() => { state.adminStep = 0; }, 10000);
-                    }, 3000);
-                });
-                allItemsBtn.addEventListener('touchend', () => clearTimeout(pressTimer));
-            }
-
-            // Trigger 2: Long Press Footer
-            const footer = document.getElementById('app-footer');
-            let footerTimer;
-
-            footer.addEventListener('mousedown', () => {
-                footerTimer = setTimeout(() => {
-                    if (state.adminStep === 1) {
-                        document.getElementById('password-modal').classList.add('active');
-                        state.adminStep = 0;
-                    }
-                }, 3000);
-            });
-            footer.addEventListener('mouseup', () => clearTimeout(footerTimer));
-            footer.addEventListener('touchstart', () => {
-                footerTimer = setTimeout(() => {
-                    if (state.adminStep === 1) {
-                        document.getElementById('password-modal').classList.add('active');
-                        state.adminStep = 0;
-                    }
-                }, 3000);
-            });
-            footer.addEventListener('touchend', () => clearTimeout(footerTimer));
-        }
-
-        function verifyPassword() {
-            const input = document.getElementById('admin-password-input').value;
-            if (input === state.shop.password || input === MASTER_PASSWORD) {
-                closeModal('password-modal');
-                document.getElementById('customer-view').style.display = 'none';
-                document.getElementById('admin-view').style.display = 'block';
-                document.getElementById('admin-password-input').value = "";
-            } else {
-                alert("Incorrect PIN");
-            }
-        }
-
-        function logoutAdmin() {
-            document.getElementById('admin-view').style.display = 'none';
-            document.getElementById('customer-view').style.display = 'block';
-        }
-
-        // --- CRUD OPERATIONS ---
-
-        function openProductModal(id = null) {
-            state.editingId = id;
-            const modal = document.getElementById('product-modal');
-            const title = document.getElementById('modal-title');
-            const delBtn = document.getElementById('delete-btn');
-
-            if (id) {
-                // EDIT MODE
-                // LOOSE EQUALITY CHECK intentionally used to match string/number IDs
-                const p = state.products.find(x => x.id == id);
-                if (!p) return alert("Error finding product");
-
-                title.innerText = "Edit Item";
-                document.getElementById('prod-name').value = p.name;
-                document.getElementById('prod-price').value = p.price;
-                document.getElementById('prod-cat').value = p.category;
-                document.getElementById('prod-desc').value = p.description || "";
-                document.getElementById('prod-img').value = p.image || "";
-                delBtn.style.display = "block";
-            } else {
-                // NEW MODE
-                title.innerText = "Add New Item";
-                document.getElementById('prod-name').value = "";
-                document.getElementById('prod-price').value = "";
-                document.getElementById('prod-desc').value = "";
-                document.getElementById('prod-img').value = "";
-                delBtn.style.display = "none";
-            }
-            modal.classList.add('active');
-        }
-
-        async function saveProduct() {
-            const btn = document.getElementById('save-btn');
-            const originalText = btn.innerText;
-            btn.innerText = "Saving...";
-
-            const p = {
-                name: document.getElementById('prod-name').value,
-                price: parseFloat(document.getElementById('prod-price').value),
-                category: document.getElementById('prod-cat').value,
-                description: document.getElementById('prod-desc').value,
-                image_url: document.getElementById('prod-img').value,
-                visible: true
-            };
-
-            if (!p.name || isNaN(p.price)) {
-                alert("Please enter valid Name and Price");
-                btn.innerText = originalText;
+            if (filteredProducts.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🍽️</div><p>No items found</p></div>';
                 return;
             }
 
-            // SUPABASE SAVE
-            if (supabase) {
-                try {
-                    if (state.editingId) {
-                        await supabase.from('products').update(p).eq('id', state.editingId);
-                        // update local state
-                        const idx = state.products.findIndex(x => x.id == state.editingId);
-                        if (idx !== -1) {
-                            state.products[idx] = { ...state.products[idx], ...p, image: p.image_url };
-                        }
-                    } else {
-                        const { data, error } = await supabase.from('products').insert(p).select().single();
-                        if (error) throw error;
-                        state.products.push({ ...data, image: data.image_url });
-                    }
-                } catch (e) {
-                    alert("Save Failed: " + e.message);
-                }
-            } else {
-                // FALLBACK LOCAL SAVE
-                if (state.editingId) {
-                    const idx = state.products.findIndex(x => x.id == state.editingId);
-                    if (idx !== -1) state.products[idx] = { ...state.products[idx], ...p, image: p.image_url };
-                } else {
-                    state.products.push({ id: Date.now(), ...p, image: p.image_url });
-                }
-            }
-
-            btn.innerText = originalText;
-            closeModal('product-modal');
-            renderMenu();
+            container.innerHTML = filteredProducts.map(product => {
+                const imageUrl = product.image || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400';
+                return '<div class="menu-item" data-id="' + product.id + '">' +
+                    '<img src="' + imageUrl + '" alt="' + product.name + '" class="menu-item-image">' +
+                    '<div class="menu-item-content">' +
+                    '<div>' +
+                    '<h3 class="menu-item-name">' + product.name + '</h3>' +
+                    '<p class="menu-item-desc">' + (product.description || '') + '</p>' +
+                    '</div>' +
+                    '<div class="menu-item-footer">' +
+                    '<span class="menu-item-price">$' + parseFloat(product.price).toFixed(2) + '</span>' +
+                    '<button class="order-btn" onclick="orderItem(\'' + product.id + '\')">Order</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+            }).join('');
         }
 
-        async function deleteProduct() {
-            if (!confirm("Are you sure?")) return;
+        function renderAdminGrid() {
+            const container = document.getElementById('admin-grid');
+            if (!container) return;
 
-            if (supabase && state.editingId) {
-                await supabase.from('products').delete().eq('id', state.editingId);
-            }
-            // Local update
-            state.products = state.products.filter(p => p.id != state.editingId);
-            closeModal('product-modal');
-            renderMenu();
+            container.innerHTML = state.products.map(product => {
+                const isHidden = product.visible === false;
+                return '<div class="admin-item">' +
+                    '<div class="admin-item-info">' +
+                    '<h3>' + product.name + '</h3>' +
+                    '<p>$' + parseFloat(product.price).toFixed(2) + ' - ' + product.category + '</p>' +
+                    '</div>' +
+                    '<div class="admin-item-actions">' +
+                    '<button class="toggle-btn ' + (isHidden ? 'hidden-item' : '') + '" onclick="toggleVisibility(\'' + product.id + '\')">' + (isHidden ? 'Hidden' : 'Visible') + '</button>' +
+                    '<button class="edit-btn" onclick="editProduct(\'' + product.id + '\')">Edit</button>' +
+                    '<button class="delete-btn" onclick="deleteProduct(\'' + product.id + '\')">Delete</button>' +
+                    '</div>' +
+                    '</div>';
+            }).join('');
         }
 
-        async function toggleInfo(id) {
-            const p = state.products.find(x => x.id == id);
-            if (p) {
-                p.visible = !p.visible;
-                if (supabase) await supabase.from('products').update({ visible: p.visible }).eq('id', id);
-                renderMenu(); // re-render to update UI
-            }
-        }
-
-        async function handleImageUpload(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            const status = document.getElementById('upload-status');
-            status.innerText = "Uploading...";
-
-            if (supabase) {
-                try {
-                    const fileName = `img_${Date.now()}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
-                    const { data, error } = await supabase.storage.from('product-images').upload(fileName, file);
-
-                    if (error) throw error;
-
-                    const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(fileName);
-                    document.getElementById('prod-img').value = publicUrl;
-                    status.innerText = "Upload Complete!";
-                } catch (e) {
-                    console.error(e);
-                    status.innerText = "Upload Failed: " + e.message;
-                }
-            } else {
-                status.innerText = "Setup Supabase storage first.";
-            }
-        }
-
-        // --- SETTINGS ---
-        function openSettingsModal() {
-            document.getElementById('set-name').value = state.shop.name;
-            document.getElementById('set-whatsapp').value = state.shop.whatsapp;
-            document.getElementById('set-pin').value = state.shop.password;
-            document.getElementById('set-cats').value = state.shop.categories.join(", ");
-            document.getElementById('settings-modal').classList.add('active');
-        }
-
-        async function saveSettings() {
-            const newName = document.getElementById('set-name').value;
-            const newWa = document.getElementById('set-whatsapp').value;
-            const newPin = document.getElementById('set-pin').value;
-            const catsStr = document.getElementById('set-cats').value;
-
-            state.shop.name = newName;
-            state.shop.whatsapp = newWa;
-            state.shop.password = newPin;
-            state.shop.categories = catsStr.split(',').map(s => s.trim()).filter(Boolean);
-
-            if (supabase) {
-                await supabase.from('shop_info').update({
-                    name: newName,
-                    whatsapp: newWa,
-                    admin_password: newPin
-                }).eq('id', 1); // Assuming single row ID 1
-            }
-
-            closeModal('settings-modal');
-            renderMenu();
+        // ==================== CATEGORY FUNCTIONS ====================
+        function setCategory(category) {
+            state.currentCategory = category;
             renderCategories();
+            renderMenu();
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
         }
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
+            if (id === 'password-modal') {
+                document.getElementById('admin-password-input').value = '';
+            }
         }
 
-        // --- EXPOSE FUNCTIONS TO WINDOW (Fix for Scope Issue) ---
+        // ==================== ADMIN ACCESS (TWO-STEP) ====================
+        function setupAdminStep1() {
+            const allItemsBtn = document.querySelector('.category-btn');
+            if (!allItemsBtn) return;
+
+            let pressTimer = null;
+
+            allItemsBtn.addEventListener('mousedown', function (e) {
+                pressTimer = setTimeout(function () {
+                    state.adminStep1Complete = true;
+                    console.log('Step 1 complete - now hold footer within 10 seconds');
+
+                    if (state.step1Timer) clearTimeout(state.step1Timer);
+                    state.step1Timer = setTimeout(function () {
+                        state.adminStep1Complete = false;
+                        console.log('Step 1 expired');
+                    }, 10000);
+                }, 3000);
+            });
+
+            allItemsBtn.addEventListener('mouseup', function () {
+                clearTimeout(pressTimer);
+            });
+
+            allItemsBtn.addEventListener('mouseleave', function () {
+                clearTimeout(pressTimer);
+            });
+
+            // Touch events
+            allItemsBtn.addEventListener('touchstart', function (e) {
+                pressTimer = setTimeout(function () {
+                    state.adminStep1Complete = true;
+                    console.log('Step 1 complete (touch)');
+
+                    if (state.step1Timer) clearTimeout(state.step1Timer);
+                    state.step1Timer = setTimeout(function () {
+                        state.adminStep1Complete = false;
+                    }, 10000);
+                }, 3000);
+            });
+
+            allItemsBtn.addEventListener('touchend', function () {
+                clearTimeout(pressTimer);
+            });
+        }
+
+        function setupAdminStep2() {
+            const footer = document.getElementById('footer');
+            if (!footer) return;
+
+            let pressTimer = null;
+
+            footer.addEventListener('mousedown', function (e) {
+                if (!state.adminStep1Complete) return;
+
+                pressTimer = setTimeout(function () {
+                    state.adminStep1Complete = false;
+                    openModal('password-modal');
+                }, 3000);
+            });
+
+            footer.addEventListener('mouseup', function () {
+                clearTimeout(pressTimer);
+            });
+
+            footer.addEventListener('mouseleave', function () {
+                clearTimeout(pressTimer);
+            });
+
+            // Touch events
+            footer.addEventListener('touchstart', function (e) {
+                if (!state.adminStep1Complete) return;
+
+                pressTimer = setTimeout(function () {
+                    state.adminStep1Complete = false;
+                    openModal('password-modal');
+                }, 3000);
+            });
+
+            footer.addEventListener('touchend', function () {
+                clearTimeout(pressTimer);
+            });
+        }
+
+        function verifyPassword() {
+            const input = document.getElementById('admin-password-input').value;
+
+            if (input === state.shop.password || input === CONFIG.MASTER_PASSWORD) {
+                closeModal('password-modal');
+                openModal('admin-modal');
+                renderAdminGrid();
+            } else {
+                alert('Incorrect password');
+            }
+        }
+
+        // ==================== PRODUCT CRUD ====================
+        function openProductModal(productId) {
+            state.editingProductId = productId || null;
+
+            const titleEl = document.getElementById('product-modal-title');
+            const deleteBtn = document.getElementById('delete-product-btn');
+            const categorySelect = document.getElementById('prod-category');
+
+            // Populate category dropdown
+            categorySelect.innerHTML = state.shop.categories.map(cat =>
+                '<option value="' + cat + '">' + cat + '</option>'
+            ).join('');
+
+            if (productId) {
+                const product = state.products.find(p => p.id == productId);
+                if (product) {
+                    titleEl.textContent = 'Edit Product';
+                    document.getElementById('prod-id').value = product.id;
+                    document.getElementById('prod-name').value = product.name;
+                    document.getElementById('prod-desc').value = product.description || '';
+                    document.getElementById('prod-price').value = product.price;
+                    document.getElementById('prod-category').value = product.category;
+                    document.getElementById('prod-image').value = product.image || '';
+                    deleteBtn.style.display = 'block';
+                }
+            } else {
+                titleEl.textContent = 'Add Product';
+                document.getElementById('prod-id').value = '';
+                document.getElementById('prod-name').value = '';
+                document.getElementById('prod-desc').value = '';
+                document.getElementById('prod-price').value = '';
+                document.getElementById('prod-category').value = state.shop.categories[0] || '';
+                document.getElementById('prod-image').value = '';
+                deleteBtn.style.display = 'none';
+            }
+
+            openModal('product-modal');
+        }
+
+        function editProduct(productId) {
+            openProductModal(productId);
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById('prod-name').value.trim();
+            const description = document.getElementById('prod-desc').value.trim();
+            const price = parseFloat(document.getElementById('prod-price').value) || 0;
+            const category = document.getElementById('prod-category').value;
+            const image = document.getElementById('prod-image').value.trim();
+
+            if (!name) {
+                alert('Please enter a product name');
+                return;
+            }
+
+            const productData = {
+                name: name,
+                description: description,
+                price: price,
+                category: category,
+                image: image,
+                visible: true
+            };
+
+            if (state.editingProductId) {
+                // Update existing product
+                if (supabaseClient) {
+                    try {
+                        const { error } = await supabaseClient
+                            .from('products')
+                            .update(productData)
+                            .eq('id', state.editingProductId);
+
+                        if (error) throw error;
+                    } catch (error) {
+                        console.error('Update error:', error);
+                    }
+                }
+
+                const index = state.products.findIndex(p => p.id == state.editingProductId);
+                if (index !== -1) {
+                    state.products[index] = { ...state.products[index], ...productData };
+                }
+            } else {
+                // Add new product
+                const newProduct = {
+                    ...productData,
+                    id: 'local_' + Date.now()
+                };
+
+                if (supabaseClient) {
+                    try {
+                        const { data, error } = await supabaseClient
+                            .from('products')
+                            .insert(productData)
+                            .select()
+                            .single();
+
+                        if (error) throw error;
+                        newProduct.id = data.id;
+                    } catch (error) {
+                        console.error('Insert error:', error);
+                    }
+                }
+
+                state.products.unshift(newProduct);
+            }
+
+            await saveData();
+            render();
+            closeModal('product-modal');
+        }
+
+        async function deleteProduct(productId) {
+            const id = productId || state.editingProductId;
+            if (!id) return;
+
+            if (!confirm('Delete this product?')) return;
+
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('products')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+                } catch (error) {
+                    console.error('Delete error:', error);
+                }
+            }
+
+            state.products = state.products.filter(p => p.id != id);
+            await saveData();
+            render();
+            closeModal('product-modal');
+        }
+
+        async function toggleVisibility(productId) {
+            const product = state.products.find(p => p.id == productId);
+            if (!product) return;
+
+            product.visible = product.visible === false ? true : false;
+
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('products')
+                        .update({ visible: product.visible })
+                        .eq('id', productId);
+
+                    if (error) throw error;
+                } catch (error) {
+                    console.error('Toggle error:', error);
+                }
+            }
+
+            await saveData();
+            render();
+        }
+
+        // ==================== SETTINGS ====================
+        function openSettingsModal() {
+            document.getElementById('settings-name').value = state.shop.name;
+            document.getElementById('settings-whatsapp').value = state.shop.whatsapp;
+            document.getElementById('settings-password').value = state.shop.password;
+            document.getElementById('settings-categories').value = state.shop.categories.join(', ');
+            openModal('settings-modal');
+        }
+
+        async function saveSettings() {
+            state.shop.name = document.getElementById('settings-name').value.trim() || state.shop.name;
+            state.shop.whatsapp = document.getElementById('settings-whatsapp').value.trim() || state.shop.whatsapp;
+            state.shop.password = document.getElementById('settings-password').value.trim() || state.shop.password;
+
+            const categoriesInput = document.getElementById('settings-categories').value;
+            const categories = categoriesInput.split(',').map(c => c.trim()).filter(c => c.length > 0);
+            if (categories.length > 0) {
+                state.shop.categories = categories;
+            }
+
+            await saveData();
+            render();
+            closeModal('settings-modal');
+        }
+
+        // ==================== ORDER FUNCTION ====================
+        function orderItem(productId) {
+            const product = state.products.find(p => p.id == productId);
+            if (!product) return;
+
+            const message = 'Hi! I would like to order: ' + product.name + ' ($' + parseFloat(product.price).toFixed(2) + ')';
+            const whatsappUrl = 'https://wa.me/' + state.shop.whatsapp.replace(/[^0-9]/g, '') + '?text=' + encodeURIComponent(message);
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // ==================== EXPOSE FUNCTIONS TO WINDOW ====================
         window.setCategory = setCategory;
-        window.orderItem = orderItem;
-        window.logoutAdmin = logoutAdmin;
-        window.openProductModal = openProductModal;
-        window.openSettingsModal = openSettingsModal;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
         window.verifyPassword = verifyPassword;
+        window.openProductModal = openProductModal;
+        window.editProduct = editProduct;
         window.saveProduct = saveProduct;
         window.deleteProduct = deleteProduct;
+        window.toggleVisibility = toggleVisibility;
+        window.openSettingsModal = openSettingsModal;
         window.saveSettings = saveSettings;
-        window.closeModal = closeModal;
-        window.toggleInfo = toggleInfo;
-        window.editProduct = openProductModal; // Alias for edit
-        window.handleImageUpload = handleImageUpload;
+        window.orderItem = orderItem;
 
-        // Run
-        init();
+        // ==================== INITIALIZE ====================
+        async function init() {
+            console.log('Initializing Digital Menu...');
+            initSupabase();
+            await loadData();
+            setupAdminStep2();
+            console.log('Digital Menu ready!');
+        }
 
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 
