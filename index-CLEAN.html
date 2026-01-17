@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Menu</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary: #8B6F47;
+            --dark: #6B553D;
+            --cream: #FAF7F2;
+            --light: #FFF9F0;
+            --text: #2C2416;
+            --gray: #6B6B6B;
+            --border: #E8E3DC;
+            --green: #4CAF50;
+            --red: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .hero {
+            position: relative;
+            height: 280px;
+            overflow: hidden;
+        }
+
+        .hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            padding: 20px;
+        }
+
+        .hero-overlay h1 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .hero-overlay p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .tab {
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: var(--light);
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .products {
+            padding: 20px;
+        }
+
+        .product {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 16px;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .product-desc {
+            font-size: 13px;
+            color: var(--gray);
+            margin-bottom: 12px;
+        }
+
+        .order-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--text);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .footer {
+            background: var(--light);
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer h3 {
+            font-size: 12px;
+            color: var(--gray);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .footer p {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .admin-view {
+            display: none;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 20px;
+            margin: -20px -20px 20px -20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-product {
+            background: white;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 16px;
+        }
+
+        .admin-product img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .admin-product-info {
+            flex: 1;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-danger {
+            background: var(--red);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 440px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .add-btn {
+            margin: 20px 0;
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 101;
+        }
+
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            cursor: pointer;
+        }
+
+        .toggle.active {
+            background: var(--green);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="customerView" class="container">
+        <div class="hero">
+            <img id="heroImg" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800" alt="Cover">
+            <div class="hero-overlay">
+                <h1 id="shopName">The Daily Grind</h1>
+                <p id="shopTagline">Premium Coffee & Artisan Eats</p>
+            </div>
+        </div>
+
+        <div class="tabs" id="categoryTabs"></div>
+        <div class="products" id="productsContainer"></div>
+
+        <div class="footer">
+            <h3>Contact Us</h3>
+            <p id="shopAddress">123 Coffee Lane, Brewville</p>
+            <p id="shopPhone"></p>
+            <p id="shopHours">Mon - Sun: 7:00 AM - 8:00 PM</p>
+        </div>
+    </div>
+
+    <div id="adminView" class="admin-view">
+        <button class="logout-btn" onclick="logout()">🚪</button>
+        <div class="admin-header">
+            <h2>Admin Dashboard</h2>
+        </div>
+        <button class="add-btn" onclick="addNew()">➕ Add New Item</button>
+        <div id="adminProducts"></div>
+    </div>
+
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Admin Access</h3>
+                <button onclick="closeModal('passwordModal')"
+                    style="background:none;border:none;font-size:24px;cursor:pointer">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="password" id="passwordInput" class="form-input"
+                    style="text-align:center;letter-spacing:4px" placeholder="••••">
+                <button class="btn-primary" style="margin-top:16px" onclick="checkPassword()">Enter</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="editTitle">Edit Product</h3>
+                <button onclick="closeModal('editModal')"
+                    style="background:none;border:none;font-size:24px;cursor:pointer">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" id="editName" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price</label>
+                    <input type="number" id="editPrice" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="editCategory" class="form-select"></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="editDesc" class="form-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Image URL</label>
+                    <input type="text" id="editImage" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Visible</label>
+                    <div class="toggle active" id="editVisible" onclick="this.classList.toggle('active')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="saveProduct()">💾 Save</button>
+                <button class="btn-danger" id="deleteBtn" style="margin-top:12px;width:100%"
+                    onclick="deleteProduct()">🗑️ Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zuztbitalaurryavwlfg.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1enRiaXRhbGF1cnJ5YXZ3bGZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0Mzc2NjMsImV4cCI6MjA4NDAxMzY2M30.FaOzzz458dTY9xXtkXzhtIXNaKmOVdOE1kT2dGhWQlU';
+        const MASTER_PASSWORD = 'hudson432@#';
+
+        let supabase = null;
+        const isHosted = window.location.protocol !== 'file:';
+
+        if (isHosted && window.supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('Cloud mode');
+        } else {
+            console.log('Local mode');
+        }
+
+        let data = {
+            shopInfo: {
+                name: 'The Daily Grind',
+                tagline: 'Premium Coffee & Artisan Eats',
+                address: '123 Coffee Lane, Brewville',
+                phone: '+1 555 0123',
+                hours: 'Mon - Sun: 7:00 AM - 8:00 PM',
+                password: '1234'
+            },
+            categories: ['All Items', 'Coffee', 'Breakfast', 'Desserts'],
+            products: []
+        };
+
+        let currentEditId = null;
+        let currentCategory = 'All Items';
+        let adminUnlockStep = 0;
+        let adminUnlockTimer = null;
+
+        async function loadData() {
+            if (supabase) {
+                try {
+                    const { data: products } = await supabase.from('products').select('*');
+                    const { data: info } = await supabase.from('shop_info').select('*').single();
+
+                    if (products) data.products = products.map(p => ({ ...p, image: p.image_url }));
+                    if (info) {
+                        data.shopInfo = {
+                            name: info.name,
+                            tagline: info.tagline,
+                            address: info.address,
+                            phone: info.whatsapp,
+                            hours: info.hours,
+                            password: info.admin_password
+                        };
+                    }
+                } catch (e) {
+                    console.error('Supabase error:', e);
+                }
+            } else {
+                const saved = localStorage.getItem('menuData');
+                if (saved) data = JSON.parse(saved);
+            }
+            render();
+        }
+
+        function saveData() {
+            if (!supabase) {
+                localStorage.setItem('menuData', JSON.stringify(data));
+            }
+        }
+
+        function render() {
+            document.getElementById('shopName').textContent = data.shopInfo.name;
+            document.getElementById('shopTagline').textContent = data.shopInfo.tagline;
+            document.getElementById('shopAddress').textContent = data.shopInfo.address;
+            document.getElementById('shopPhone').textContent = data.shopInfo.phone;
+            document.getElementById('shopHours').textContent = data.shopInfo.hours;
+
+            const tabs = document.getElementById('categoryTabs');
+            tabs.innerHTML = data.categories.map(cat =>
+                `<button class="tab ${cat === currentCategory ? 'active' : ''}" onclick="filterCategory('${cat}')">${cat}</button>`
+            ).join('');
+
+            const filtered = currentCategory === 'All Items' ?
+                data.products.filter(p => p.visible) :
+                data.products.filter(p => p.category === currentCategory && p.visible);
+
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = filtered.map(p => `
+                <div class="product">
+                    <img src="${p.image || 'https://via.placeholder.com/400x300'}" alt="${p.name}">
+                    <div class="product-info">
+                        <div class="product-header">
+                            <div class="product-name">${p.name}</div>
+                            <div class="product-price">₹${p.price}</div>
+                        </div>
+                        <div class="product-desc">${p.description || ''}</div>
+                        <button class="order-btn" onclick="order('${p.name}')">📱 Order on WhatsApp</button>
+                    </div>
+                </div>
+            `).join('');
+
+            const admin = document.getElementById('adminProducts');
+            admin.innerHTML = data.products.map(p => `
+                <div class="admin-product">
+                    <img src="${p.image || 'https://via.placeholder.com/80'}" alt="${p.name}">
+                    <div class="admin-product-info">
+                        <div style="font-weight:600">${p.name}</div>
+                        <div style="color:var(--primary);font-weight:700">₹${p.price}</div>
+                    </div>
+                    <div class="admin-actions">
+                        <div class="toggle ${p.visible ? 'active' : ''}" onclick="toggleVis('${p.id}')">
+                            <div class="toggle-slider"></div>
+                        </div>
+                        <button class="icon-btn" onclick="editProduct('${p.id}')">📝</button>
+                        <button class="icon-btn" onclick="quickDelete('${p.id}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            render();
+        }
+
+        function order(name) {
+            const msg = `Hi! I'd like to order: ${name}`;
+            window.open(`https://wa.me/${data.shopInfo.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`);
+        }
+
+        async function toggleVis(id) {
+            const product = data.products.find(p => p.id == id);
+            if (product) {
+                product.visible = !product.visible;
+                if (supabase) {
+                    await supabase.from('products').update({ visible: product.visible }).eq('id', id);
+                } else {
+                    saveData();
+                }
+                render();
+            }
+        }
+
+        function editProduct(id) {
+            currentEditId = id;
+            const product = data.products.find(p => p.id == id);
+            if (!product) return;
+
+            document.getElementById('editTitle').textContent = 'Edit Product';
+            document.getElementById('editName').value = product.name;
+            document.getElementById('editPrice').value = product.price;
+            document.getElementById('editDesc').value = product.description || '';
+            document.getElementById('editImage').value = product.image || '';
+
+            const select = document.getElementById('editCategory');
+            select.innerHTML = data.categories.filter(c => c !== 'All Items').map(cat =>
+                `<option ${product.category === cat ? 'selected' : ''}>${cat}</option>`
+            ).join('');
+
+            const toggle = document.getElementById('editVisible');
+            if (product.visible) toggle.classList.add('active');
+            else toggle.classList.remove('active');
+
+            document.getElementById('deleteBtn').classList.remove('hidden');
+            openModal('editModal');
+        }
+
+        function addNew() {
+            currentEditId = null;
+            document.getElementById('editTitle').textContent = 'Add Product';
+            document.getElementById('editName').value = '';
+            document.getElementById('editPrice').value = '';
+            document.getElementById('editDesc').value = '';
+            document.getElementById('editImage').value = '';
+
+            const select = document.getElementById('editCategory');
+            select.innerHTML = data.categories.filter(c => c !== 'All Items').map(cat =>
+                `<option>${cat}</option>`
+            ).join('');
+
+            document.getElementById('editVisible').classList.add('active');
+            document.getElementById('deleteBtn').classList.add('hidden');
+            openModal('editModal');
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById('editName').value;
+            const price = parseFloat(document.getElementById('editPrice').value);
+            const category = document.getElementById('editCategory').value;
+            const description = document.getElementById('editDesc').value;
+            const image = document.getElementById('editImage').value;
+            const visible = document.getElementById('editVisible').classList.contains('active');
+
+            if (!name || !price) {
+                alert('Name and price required');
+                return;
+            }
+
+            const productData = { name, price, category, description, visible };
+
+            if (supabase) {
+                if (currentEditId) {
+                    await supabase.from('products').update({ ...productData, image_url: image }).eq('id', currentEditId);
+                    const p = data.products.find(p => p.id == currentEditId);
+                    Object.assign(p, productData, { image });
+                } else {
+                    const { data: newP } = await supabase.from('products').insert({ ...productData, image_url: image }).select().single();
+                    if (newP) data.products.push({ ...newP, image: newP.image_url });
+                }
+            } else {
+                if (currentEditId) {
+                    const p = data.products.find(p => p.id == currentEditId);
+                    Object.assign(p, productData, { image });
+                } else {
+                    data.products.push({
+                        id: Date.now(),
+                        ...productData,
+                        image
+                    });
+                }
+                saveData();
+            }
+
+            closeModal('editModal');
+            render();
+        }
+
+        async function deleteProduct() {
+            if (!confirm('Delete this product?')) return;
+
+            if (supabase) {
+                await supabase.from('products').delete().eq('id', currentEditId);
+            }
+
+            data.products = data.products.filter(p => p.id != currentEditId);
+            saveData();
+            closeModal('editModal');
+            render();
+        }
+
+        async function quickDelete(id) {
+            if (!confirm('Delete?')) return;
+
+            if (supabase) {
+                await supabase.from('products').delete().eq('id', id);
+            }
+
+            data.products = data.products.filter(p => p.id != id);
+            saveData();
+            render();
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            if (input === data.shopInfo.password || input === MASTER_PASSWORD) {
+                closeModal('passwordModal');
+                document.getElementById('customerView').style.display = 'none';
+                document.getElementById('adminView').style.display = 'block';
+                render();
+            } else {
+                alert('Wrong password');
+            }
+        }
+
+        function logout() {
+            document.getElementById('customerView').style.display = 'block';
+            document.getElementById('adminView').style.display = 'none';
+            adminUnlockStep = 0;
+        }
+
+        document.getElementById('categoryTabs').addEventListener('mousedown', e => {
+            if (e.target.textContent === 'All Items') {
+                adminUnlockStep = 1;
+                clearTimeout(adminUnlockTimer);
+                adminUnlockTimer = setTimeout(() => adminUnlockStep = 0, 10000);
+            }
+        });
+
+        document.querySelector('.footer').addEventListener('mousedown', e => {
+            if (adminUnlockStep === 1) {
+                openModal('passwordModal');
+                adminUnlockStep = 0;
+            }
+        });
+
+        loadData();
+    </script>
+</body>
+
+</html>
