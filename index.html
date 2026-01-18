@@ -626,6 +626,12 @@
                     <div class="or-divider"><span>or paste URL</span></div>
                     <input type="text" id="settings-cover-image" placeholder="https://..." style="margin-top: 5px;">
                 </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                        <input type="checkbox" id="settings-hide-header-text" style="width: 18px; height: 18px;">
+                        Hide Shop Name & Tagline (Use for custom banner)
+                    </label>
+                </div>
                 <div class="form-group">
                     <label>Footer Copyright Text</label>
                     <input type="text" id="settings-footer-copyright" placeholder="© 2024 Your Shop Name">
@@ -664,7 +670,8 @@
                 headerImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800',
                 footerCopyright: '© 2024 The Daily Grind',
                 footerAddress: '123 Coffee Lane, Brewville',
-                hours: 'Mon - Sun: 9:00 AM - 9:00 PM'
+                hours: 'Mon - Sun: 9:00 AM - 9:00 PM',
+                hideHeaderText: false
             },
             currentCategory: 'all',
             editingProductId: null,
@@ -719,7 +726,8 @@
                             headerImage: shopInfo.cover_image_url || state.shop.headerImage,
                             footerCopyright: shopInfo.footer_copyright || state.shop.footerCopyright,
                             footerAddress: shopInfo.address || state.shop.footerAddress,
-                            hours: shopInfo.hours || state.shop.hours
+                            hours: shopInfo.hours || state.shop.hours,
+                            hideHeaderText: shopInfo.hide_header_text || state.shop.hideHeaderText
                         };
                     }
 
@@ -765,7 +773,10 @@
                             cover_image_url: state.shop.headerImage,
                             footer_copyright: state.shop.footerCopyright,
                             address: state.shop.footerAddress,
-                            hours: state.shop.hours
+                            footer_copyright: state.shop.footerCopyright,
+                            address: state.shop.footerAddress,
+                            hours: state.shop.hours,
+                            hide_header_text: state.shop.hideHeaderText
                         })
                         .eq('id', state.shop.id);
 
@@ -789,8 +800,20 @@
         }
 
         function renderHeader() {
-            document.getElementById('shop-name').textContent = state.shop.name;
-            document.getElementById('shop-tagline').textContent = state.shop.tagline;
+            const nameEl = document.getElementById('shop-name');
+            const taglineEl = document.getElementById('shop-tagline');
+
+            nameEl.textContent = state.shop.name;
+            taglineEl.textContent = state.shop.tagline;
+
+            if (state.shop.hideHeaderText) {
+                nameEl.style.display = 'none';
+                taglineEl.style.display = 'none';
+            } else {
+                nameEl.style.display = 'block';
+                taglineEl.style.display = 'block';
+            }
+
             const header = document.getElementById('header');
             if (state.shop.headerImage) {
                 header.style.background = 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url("' + state.shop.headerImage + '") center/cover';
@@ -1231,7 +1254,9 @@
             document.getElementById('settings-cover-image').value = state.shop.headerImage || '';
             document.getElementById('settings-footer-copyright').value = state.shop.footerCopyright || '';
             document.getElementById('settings-footer-address').value = state.shop.footerAddress || '';
+            document.getElementById('settings-footer-address').value = state.shop.footerAddress || '';
             document.getElementById('settings-hours').value = state.shop.hours || '';
+            document.getElementById('settings-hide-header-text').checked = state.shop.hideHeaderText || false;
 
             // Reset cover image preview
             state.pendingCoverImage = null;
@@ -1256,7 +1281,9 @@
             state.shop.password = document.getElementById('settings-password').value.trim() || state.shop.password;
             state.shop.footerCopyright = document.getElementById('settings-footer-copyright').value.trim() || state.shop.footerCopyright;
             state.shop.footerAddress = document.getElementById('settings-footer-address').value.trim() || state.shop.footerAddress;
+            state.shop.footerAddress = document.getElementById('settings-footer-address').value.trim() || state.shop.footerAddress;
             state.shop.hours = document.getElementById('settings-hours').value.trim() || state.shop.hours;
+            state.shop.hideHeaderText = document.getElementById('settings-hide-header-text').checked;
 
             const categoriesInput = document.getElementById('settings-categories').value;
             const categories = categoriesInput.split(',').map(c => c.trim()).filter(c => c.length > 0);
